@@ -45,12 +45,9 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
     @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 15px rgba(200, 169, 110, 0.1); } 50% { box-shadow: 0 0 25px rgba(200, 169, 110, 0.25); } }
     @keyframes gentleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
     .fade-in { animation: fadeIn 0.4s ease-out; }
-    .slide-in { animation: slideIn 0.3s ease-out; }
 
     /* Login page */
     .login-container {
@@ -96,12 +93,8 @@
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 25px rgba(200, 169, 110, 0.4); background: linear-gradient(135deg, var(--accent-gold-hover), var(--accent-gold)); }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    .toggle-link { margin-top: 20px; color: var(--text-muted); font-size: 0.85rem; }
-    .toggle-link button { background: none; border: none; color: var(--accent-gold); cursor: pointer; font-family: var(--font-sans); font-size: 0.85rem; text-decoration: underline; transition: color 0.2s; }
-    .toggle-link button:hover { color: var(--accent-gold-hover); }
 
     .error-msg { color: var(--danger); font-size: 0.82rem; margin-top: 12px; padding: 10px; background: rgba(231, 76, 60, 0.1); border-radius: 8px; border: 1px solid rgba(231, 76, 60, 0.2); }
-    .success-msg { color: var(--success); font-size: 0.82rem; margin-top: 12px; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; }
 
     /* App layout */
     .app-container { display: flex; height: 100vh; overflow: hidden; }
@@ -141,7 +134,6 @@
 
     .sidebar-footer {
       padding: 14px 16px; border-top: 1px solid var(--border-subtle);
-      display: flex; flex-direction: column; gap: 8px;
     }
     .sidebar-footer-btn {
       display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
@@ -175,13 +167,6 @@
     .menu-toggle:hover { background: rgba(176, 196, 196, 0.1); color: var(--text-primary); }
     .chat-header-title { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; letter-spacing: 0.05em; }
     .chat-header-status { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
-
-    .chat-header-right { display: flex; align-items: center; gap: 8px; }
-    .header-btn {
-      background: none; border: none; color: var(--text-secondary); cursor: pointer;
-      padding: 8px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center;
-    }
-    .header-btn:hover { background: rgba(176, 196, 196, 0.1); color: var(--text-primary); }
 
     /* Messages area */
     .messages-container { flex: 1; overflow-y: auto; padding: 24px 20px; scroll-behavior: smooth; }
@@ -258,44 +243,6 @@
     .btn-send:hover { transform: scale(1.05); box-shadow: 0 2px 12px rgba(200, 169, 110, 0.4); }
     .btn-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    /* Settings modal */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
-      z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px;
-    }
-    .modal-content {
-      background: var(--bg-secondary); border: 1px solid var(--guardian-border);
-      border-radius: 16px; width: 480px; max-width: 95vw; max-height: 85vh; overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-    .modal-header {
-      padding: 24px 28px 16px; display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-    .modal-title { font-family: var(--font-serif); font-size: 1.3rem; letter-spacing: 0.05em; }
-    .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s; }
-    .modal-close:hover { color: var(--text-primary); background: rgba(176, 196, 196, 0.1); }
-    .modal-body { padding: 24px 28px; }
-    .modal-footer { padding: 16px 28px 24px; display: flex; justify-content: flex-end; gap: 10px; }
-
-    .btn-secondary {
-      padding: 10px 20px; border: 1px solid var(--border-subtle); border-radius: 8px;
-      background: transparent; color: var(--text-secondary); cursor: pointer;
-      font-family: var(--font-sans); font-size: 0.88rem; transition: all 0.2s;
-    }
-    .btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
-    .btn-save {
-      padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer;
-      background: linear-gradient(135deg, var(--accent-gold), #B8964E);
-      color: var(--bg-secondary); font-family: var(--font-sans); font-size: 0.88rem;
-      font-weight: 500; transition: all 0.2s;
-    }
-    .btn-save:hover { box-shadow: 0 2px 12px rgba(200, 169, 110, 0.3); }
-
-    .config-section { margin-bottom: 24px; }
-    .config-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-gold); margin-bottom: 14px; font-weight: 500; }
-    .config-note { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
-
     /* Mobile overlay */
     .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 15; }
 
@@ -315,15 +262,14 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+    const { useState, useEffect, useRef, useCallback } = React;
 
-    // ─── Configuration ────────────────────────────────────────
-    const CONFIG = {
-      SUPABASE_URL: localStorage.getItem('eden_supabase_url') || '',
-      SUPABASE_ANON_KEY: localStorage.getItem('eden_supabase_key') || '',
-      ANTHROPIC_API_KEY: localStorage.getItem('eden_anthropic_key') || '',
-      PROXY_URL: localStorage.getItem('eden_proxy_url') || '',
-    };
+    // ─── Credentials ──────────────────────────────────────────
+    const SUPABASE_URL = 'https://srollrctqwxmqtspxnyd.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_Weu8vul2pvwrJROJe9eiIA_Wq_lNKwE';
+    const SITE_URL = 'https://guardiao-do-eden-git-main-mktbrunosimplicio-8566s-projects.vercel.app';
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const SYSTEM_PROMPT = `Você é o Guardião do Éden.
 
@@ -391,121 +337,29 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
     const IconSend = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);
     const IconMenu = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);
     const IconPlus = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>);
-    const IconSettings = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>);
     const IconLogout = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>);
     const IconTrash = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>);
-    const IconX = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
     const IconChat = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>);
-
-    // ─── Supabase Client ──────────────────────────────────────
-    let supabaseClient = null;
-    function getSupabase() {
-      const url = localStorage.getItem('eden_supabase_url') || '';
-      const key = localStorage.getItem('eden_supabase_key') || '';
-      if (url && key && (!supabaseClient || supabaseClient._url !== url)) {
-        supabaseClient = supabase.createClient(url, key);
-        supabaseClient._url = url;
-      }
-      return supabaseClient;
-    }
-
-    // ─── Auth Context ─────────────────────────────────────────
-    const AuthContext = createContext(null);
-
-    // ─── Settings Modal ───────────────────────────────────────
-    function SettingsModal({ onClose, onSave }) {
-      const [supabaseUrl, setSupabaseUrl] = useState(localStorage.getItem('eden_supabase_url') || '');
-      const [supabaseKey, setSupabaseKey] = useState(localStorage.getItem('eden_supabase_key') || '');
-      const [anthropicKey, setAnthropicKey] = useState(localStorage.getItem('eden_anthropic_key') || '');
-      const [proxyUrl, setProxyUrl] = useState(localStorage.getItem('eden_proxy_url') || '');
-
-      const handleSave = () => {
-        localStorage.setItem('eden_supabase_url', supabaseUrl);
-        localStorage.setItem('eden_supabase_key', supabaseKey);
-        localStorage.setItem('eden_anthropic_key', anthropicKey);
-        localStorage.setItem('eden_proxy_url', proxyUrl);
-        supabaseClient = null;
-        onSave && onSave();
-        onClose();
-      };
-
-      return (
-        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-          <div className="modal-content fade-in">
-            <div className="modal-header">
-              <h2 className="modal-title">Configurações</h2>
-              <button className="modal-close" onClick={onClose}><IconX /></button>
-            </div>
-            <div className="modal-body">
-              <div className="config-section">
-                <div className="config-section-title">Supabase</div>
-                <div className="form-group">
-                  <label className="form-label">Project URL</label>
-                  <input className="form-input" value={supabaseUrl} onChange={e => setSupabaseUrl(e.target.value)} placeholder="https://xxxxx.supabase.co" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Anon Key</label>
-                  <input className="form-input" type="password" value={supabaseKey} onChange={e => setSupabaseKey(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." />
-                </div>
-              </div>
-              <div className="config-section">
-                <div className="config-section-title">Anthropic API</div>
-                <div className="form-group">
-                  <label className="form-label">API Key</label>
-                  <input className="form-input" type="password" value={anthropicKey} onChange={e => setAnthropicKey(e.target.value)} placeholder="sk-ant-..." />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Proxy URL (opcional)</label>
-                  <input className="form-input" value={proxyUrl} onChange={e => setProxyUrl(e.target.value)} placeholder="https://sua-edge-function.supabase.co/functions/v1/chat" />
-                  <p className="config-note">A API da Anthropic não suporta chamadas diretas do navegador. Use um proxy (Supabase Edge Function) ou insira a URL do seu backend.</p>
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={onClose}>Cancelar</button>
-              <button className="btn-save" onClick={handleSave}>Salvar</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
 
     // ─── Login Page ───────────────────────────────────────────
     function LoginPage({ onLogin }) {
-      const [isSignUp, setIsSignUp] = useState(false);
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
       const [loading, setLoading] = useState(false);
       const [error, setError] = useState('');
-      const [success, setSuccess] = useState('');
-      const [showSettings, setShowSettings] = useState(false);
-
-      const sb = getSupabase();
 
       const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!sb) {
-          setError('Configure o Supabase nas configurações primeiro.');
-          setShowSettings(true);
-          return;
-        }
-        setLoading(true); setError(''); setSuccess('');
+        setLoading(true); setError('');
         try {
-          if (isSignUp) {
-            const { data, error: err } = await sb.auth.signUp({ email, password });
-            if (err) throw err;
-            if (data.user && !data.session) {
-              setSuccess('Conta criada! Verifique seu email para confirmar.');
-            } else if (data.session) {
-              onLogin(data.session.user);
-            }
-          } else {
-            const { data, error: err } = await sb.auth.signInWithPassword({ email, password });
-            if (err) throw err;
-            onLogin(data.session.user);
-          }
+          const { data, error: err } = await sb.auth.signInWithPassword({ email, password });
+          if (err) throw err;
+          onLogin(data.session.user);
         } catch (err) {
-          setError(err.message || 'Erro ao autenticar.');
+          const msg = err.message || 'Erro ao autenticar.';
+          if (msg.includes('Invalid login')) setError('Email ou senha incorretos. Verifique suas credenciais.');
+          else if (msg.includes('Email not confirmed')) setError('Sua conta ainda não foi ativada. Entre em contato com o suporte.');
+          else setError('Não foi possível acessar. Verifique seu email e senha.');
         }
         setLoading(false);
       };
@@ -523,27 +377,17 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
               </div>
               <div className="form-group">
                 <label className="form-label">Senha</label>
-                <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
+                <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Digite sua senha" required minLength={6} />
               </div>
               <button className="btn-primary" type="submit" disabled={loading}>
-                {loading ? 'Aguarde...' : (isSignUp ? 'Criar Conta' : 'Entrar no Éden')}
+                {loading ? 'Aguarde...' : 'Entrar no Éden'}
               </button>
             </form>
             {error && <p className="error-msg">{error}</p>}
-            {success && <p className="success-msg">{success}</p>}
-            <div className="toggle-link">
-              {isSignUp ? 'Já tem uma conta?' : 'Novo por aqui?'}{' '}
-              <button onClick={() => { setIsSignUp(!isSignUp); setError(''); setSuccess(''); }}>
-                {isSignUp ? 'Entrar' : 'Criar conta'}
-              </button>
-            </div>
-            <div style={{ marginTop: 16 }}>
-              <button className="sidebar-footer-btn" onClick={() => setShowSettings(true)} style={{ justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.78rem' }}>
-                <IconSettings /> Configurações
-              </button>
-            </div>
+            <p style={{ marginTop: 24, color: 'var(--text-muted)', fontSize: '0.78rem', lineHeight: 1.5 }}>
+              Acesso exclusivo para membros da comunidade Éden.
+            </p>
           </div>
-          {showSettings && <SettingsModal onClose={() => setShowSettings(false)} onSave={() => { supabaseClient = null; }} />}
         </div>
       );
     }
@@ -556,24 +400,19 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
       const [input, setInput] = useState('');
       const [isTyping, setIsTyping] = useState(false);
       const [sidebarOpen, setSidebarOpen] = useState(false);
-      const [showSettings, setShowSettings] = useState(false);
       const messagesEndRef = useRef(null);
       const inputRef = useRef(null);
-      const sb = getSupabase();
 
       const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       };
       useEffect(scrollToBottom, [messages, isTyping]);
 
-      // Load conversations
       useEffect(() => {
-        if (!sb || !user) return;
-        loadConversations();
+        if (user) loadConversations();
       }, [user]);
 
       const loadConversations = async () => {
-        if (!sb) return;
         try {
           const { data, error } = await sb.from('conversations').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
           if (!error && data) setConversations(data);
@@ -581,7 +420,6 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
       };
 
       const loadMessages = async (convId) => {
-        if (!sb) return;
         try {
           const { data, error } = await sb.from('messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
           if (!error && data) setMessages(data.map(m => ({ role: m.role, content: m.content })));
@@ -589,10 +427,8 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
       };
 
       const saveMessage = async (convId, role, content) => {
-        if (!sb) return;
         try {
           await sb.from('messages').insert({ conversation_id: convId, role, content, user_id: user.id });
-          // Update conversation title from first user message
           if (role === 'user' && messages.length === 0) {
             const title = content.substring(0, 60) + (content.length > 60 ? '...' : '');
             await sb.from('conversations').update({ title, updated_at: new Date().toISOString() }).eq('id', convId);
@@ -604,7 +440,6 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
       };
 
       const createNewConversation = async () => {
-        if (!sb) return null;
         try {
           const { data, error } = await sb.from('conversations').insert({ user_id: user.id, title: 'Nova Sessão', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }).select().single();
           if (!error && data) {
@@ -633,7 +468,6 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
 
       const handleDeleteConversation = async (e, convId) => {
         e.stopPropagation();
-        if (!sb) return;
         try {
           await sb.from('messages').delete().eq('conversation_id', convId);
           await sb.from('conversations').delete().eq('id', convId);
@@ -646,40 +480,17 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
       };
 
       const callAI = async (msgs) => {
-        const proxyUrl = localStorage.getItem('eden_proxy_url') || '';
-        const apiKey = localStorage.getItem('eden_anthropic_key') || '';
-
-        if (proxyUrl) {
-          // Use proxy/edge function
-          const res = await fetch(proxyUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-            body: JSON.stringify({ messages: msgs, system: SYSTEM_PROMPT, model: 'claude-sonnet-4-5-20250514', max_tokens: 2048 })
-          });
-          if (!res.ok) throw new Error(`API error: ${res.status}`);
-          const data = await res.json();
-          return data.content?.[0]?.text || data.response || data.message || JSON.stringify(data);
-        } else if (apiKey) {
-          // Direct Anthropic API call (may have CORS issues without proxy)
-          const res = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-api-key': apiKey,
-              'anthropic-version': '2023-06-01',
-              'anthropic-dangerous-direct-browser-access': 'true',
-            },
-            body: JSON.stringify({ model: 'claude-sonnet-4-5-20250514', max_tokens: 2048, system: SYSTEM_PROMPT, messages: msgs })
-          });
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error?.message || `API error: ${res.status}`);
-          }
-          const data = await res.json();
-          return data.content?.[0]?.text || '';
-        } else {
-          throw new Error('Configure a API key nas configurações.');
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'claude-sonnet-4-5-20250514', max_tokens: 2048, system: SYSTEM_PROMPT, messages: msgs })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Erro na API. Tente novamente.');
         }
+        const data = await res.json();
+        return data.content?.[0]?.text || '';
       };
 
       const handleSend = async () => {
@@ -687,7 +498,6 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
         const userMessage = input.trim();
         setInput('');
 
-        // Ensure we have an active conversation
         let conv = activeConversation;
         if (!conv) {
           conv = await createNewConversation();
@@ -706,8 +516,7 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
           setMessages(finalMessages);
           await saveMessage(conv.id, 'assistant', response);
         } catch (err) {
-          const errorMsg = `Desculpe, houve um erro: ${err.message}`;
-          setMessages([...newMessages, { role: 'assistant', content: errorMsg }]);
+          setMessages([...newMessages, { role: 'assistant', content: 'Desculpe, houve um erro ao processar sua mensagem. Tente novamente.' }]);
         }
         setIsTyping(false);
       };
@@ -726,27 +535,22 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
         const diffDays = Math.floor((now - d) / 86400000);
         if (diffDays === 0) return 'Hoje';
         if (diffDays === 1) return 'Ontem';
-        if (diffDays < 7) return `${diffDays}d`;
+        if (diffDays < 7) return d.toLocaleDateString('pt-BR', { weekday: 'short' });
         return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
       };
 
       const formatMessage = (text) => {
         if (!text) return '';
-        // Bold
         let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        // Italic
         formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        // Line breaks
         formatted = formatted.replace(/\n/g, '<br/>');
         return formatted;
       };
 
       return (
         <div className="app-container">
-          {/* Sidebar overlay (mobile) */}
           <div className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)} />
 
-          {/* Sidebar */}
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
               <div className="sidebar-logo"><EdenLogo size={36} /></div>
@@ -776,16 +580,12 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
             </div>
 
             <div className="sidebar-footer">
-              <button className="sidebar-footer-btn" onClick={() => setShowSettings(true)}>
-                <IconSettings /> Configurações
-              </button>
               <button className="sidebar-footer-btn danger" onClick={onLogout}>
                 <IconLogout /> Sair
               </button>
             </div>
           </aside>
 
-          {/* Main chat area */}
           <main className="chat-main">
             <header className="chat-header">
               <div className="chat-header-left">
@@ -795,12 +595,8 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
                   <div className="chat-header-status">{isTyping ? 'Analisando...' : 'Método RADAR Comportamental'}</div>
                 </div>
               </div>
-              <div className="chat-header-right">
-                <button className="header-btn" onClick={() => setShowSettings(true)} title="Configurações"><IconSettings /></button>
-              </div>
             </header>
 
-            {/* Messages */}
             <div className="messages-container">
               <div className="messages-inner">
                 {!activeConversation || messages.length === 0 ? (
@@ -836,7 +632,6 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
               </div>
             </div>
 
-            {/* Input */}
             <div className="input-container">
               <div className="input-inner">
                 <div className="input-wrapper">
@@ -858,8 +653,6 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
               </div>
             </div>
           </main>
-
-          {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
         </div>
       );
     }
@@ -870,9 +663,6 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
       const [loading, setLoading] = useState(true);
 
       useEffect(() => {
-        const sb = getSupabase();
-        if (!sb) { setLoading(false); return; }
-
         sb.auth.getSession().then(({ data: { session } }) => {
           setUser(session?.user || null);
           setLoading(false);
@@ -886,8 +676,7 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
       }, []);
 
       const handleLogout = async () => {
-        const sb = getSupabase();
-        if (sb) await sb.auth.signOut();
+        await sb.auth.signOut();
         setUser(null);
       };
 
