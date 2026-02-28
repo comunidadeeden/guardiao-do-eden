@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guardião do Éden</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0D3B3E;
+      --bg-secondary: #1A2A2D;
+      --bg-tertiary: #0A2E30;
+      --text-primary: #FFFFFF;
+      --text-secondary: #B0C4C4;
+      --text-muted: #7A9A9A;
+      --accent-gold: #C8A96E;
+      --accent-gold-hover: #D4B87E;
+      --accent-gold-dim: rgba(200, 169, 110, 0.15);
+      --user-bubble: #1A5C5F;
+      --guardian-bubble: #1A2A2D;
+      --guardian-border: rgba(200, 169, 110, 0.3);
+      --border-subtle: rgba(176, 196, 196, 0.1);
+      --danger: #E74C3C;
+      --success: #2ECC71;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --sidebar-width: 280px;
+      --header-height: 64px;
+    }
+    html, body, #root { height: 100%; width: 100%; overflow: hidden; }
+    body { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(176, 196, 196, 0.2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(176, 196, 196, 0.35); }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+    @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 15px rgba(200, 169, 110, 0.1); } 50% { box-shadow: 0 0 25px rgba(200, 169, 110, 0.25); } }
+    @keyframes gentleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    .slide-in { animation: slideIn 0.3s ease-out; }
+
+    /* Login page */
+    .login-container {
+      height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+      position: relative; overflow: hidden;
+    }
+    .login-container::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 20%, rgba(200, 169, 110, 0.06) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(26, 92, 95, 0.08) 0%, transparent 50%);
+    }
+    .login-card {
+      position: relative; z-index: 1; width: 420px; max-width: 92vw;
+      background: rgba(26, 42, 45, 0.85); backdrop-filter: blur(20px);
+      border: 1px solid var(--guardian-border); border-radius: 20px;
+      padding: 48px 40px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(200, 169, 110, 0.05);
+    }
+    .login-logo { width: 100px; height: 100px; margin: 0 auto 12px; }
+    .login-logo svg { width: 100%; height: 100%; }
+    .login-title { font-family: var(--font-serif); font-size: 2.4rem; font-weight: 300; letter-spacing: 0.15em; margin-bottom: 6px; color: var(--text-primary); }
+    .login-subtitle { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 36px; }
+
+    .form-group { margin-bottom: 18px; text-align: left; }
+    .form-label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .form-input {
+      width: 100%; padding: 14px 16px; background: rgba(13, 59, 62, 0.5);
+      border: 1px solid var(--border-subtle); border-radius: 10px;
+      color: var(--text-primary); font-family: var(--font-sans); font-size: 0.95rem;
+      transition: all 0.3s ease; outline: none;
+    }
+    .form-input:focus { border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(200, 169, 110, 0.1); }
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .btn-primary {
+      width: 100%; padding: 15px; border: none; border-radius: 10px; cursor: pointer;
+      font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500; letter-spacing: 0.08em;
+      background: linear-gradient(135deg, var(--accent-gold), #B8964E);
+      color: var(--bg-secondary); transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(200, 169, 110, 0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 25px rgba(200, 169, 110, 0.4); background: linear-gradient(135deg, var(--accent-gold-hover), var(--accent-gold)); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .toggle-link { margin-top: 20px; color: var(--text-muted); font-size: 0.85rem; }
+    .toggle-link button { background: none; border: none; color: var(--accent-gold); cursor: pointer; font-family: var(--font-sans); font-size: 0.85rem; text-decoration: underline; transition: color 0.2s; }
+    .toggle-link button:hover { color: var(--accent-gold-hover); }
+
+    .error-msg { color: var(--danger); font-size: 0.82rem; margin-top: 12px; padding: 10px; background: rgba(231, 76, 60, 0.1); border-radius: 8px; border: 1px solid rgba(231, 76, 60, 0.2); }
+    .success-msg { color: var(--success); font-size: 0.82rem; margin-top: 12px; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; }
+
+    /* App layout */
+    .app-container { display: flex; height: 100vh; overflow: hidden; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width); height: 100vh; background: var(--bg-secondary);
+      border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column;
+      transition: transform 0.3s ease; flex-shrink: 0; z-index: 20;
+    }
+    .sidebar-header {
+      padding: 18px 16px; border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sidebar-logo { width: 36px; height: 36px; flex-shrink: 0; }
+    .sidebar-logo svg { width: 100%; height: 100%; }
+    .sidebar-brand { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 400; letter-spacing: 0.08em; }
+
+    .btn-new-session {
+      margin: 14px 14px 8px; padding: 12px; border: 1px dashed var(--guardian-border);
+      border-radius: 10px; background: transparent; color: var(--accent-gold);
+      font-family: var(--font-sans); font-size: 0.85rem; cursor: pointer;
+      transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-new-session:hover { background: var(--accent-gold-dim); border-style: solid; }
+
+    .sidebar-conversations { flex: 1; overflow-y: auto; padding: 8px; }
+    .conversation-item {
+      padding: 12px 14px; border-radius: 8px; cursor: pointer; margin-bottom: 3px;
+      transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.85rem; color: var(--text-secondary);
+    }
+    .conversation-item:hover { background: rgba(200, 169, 110, 0.08); color: var(--text-primary); }
+    .conversation-item.active { background: var(--accent-gold-dim); color: var(--accent-gold); border: 1px solid rgba(200, 169, 110, 0.15); }
+    .conversation-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .conversation-date { font-size: 0.7rem; color: var(--text-muted); flex-shrink: 0; margin-left: 8px; }
+
+    .sidebar-footer {
+      padding: 14px 16px; border-top: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .sidebar-footer-btn {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
+      background: transparent; border: none; color: var(--text-secondary);
+      font-family: var(--font-sans); font-size: 0.83rem; cursor: pointer; width: 100%; text-align: left;
+      transition: all 0.2s;
+    }
+    .sidebar-footer-btn:hover { background: rgba(176, 196, 196, 0.08); color: var(--text-primary); }
+    .sidebar-footer-btn.danger:hover { background: rgba(231, 76, 60, 0.1); color: var(--danger); }
+
+    .delete-btn {
+      background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;
+      border-radius: 4px; opacity: 0; transition: all 0.2s; flex-shrink: 0; display: flex; align-items: center;
+    }
+    .conversation-item:hover .delete-btn { opacity: 1; }
+    .delete-btn:hover { color: var(--danger); background: rgba(231, 76, 60, 0.1); }
+
+    /* Main chat area */
+    .chat-main { flex: 1; display: flex; flex-direction: column; height: 100vh; min-width: 0; }
+
+    .chat-header {
+      height: var(--header-height); padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle); background: rgba(26, 42, 45, 0.6);
+      backdrop-filter: blur(10px); flex-shrink: 0;
+    }
+    .chat-header-left { display: flex; align-items: center; gap: 12px; }
+    .menu-toggle {
+      display: none; background: none; border: none; color: var(--text-secondary);
+      cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s;
+    }
+    .menu-toggle:hover { background: rgba(176, 196, 196, 0.1); color: var(--text-primary); }
+    .chat-header-title { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; letter-spacing: 0.05em; }
+    .chat-header-status { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
+    .chat-header-right { display: flex; align-items: center; gap: 8px; }
+    .header-btn {
+      background: none; border: none; color: var(--text-secondary); cursor: pointer;
+      padding: 8px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center;
+    }
+    .header-btn:hover { background: rgba(176, 196, 196, 0.1); color: var(--text-primary); }
+
+    /* Messages area */
+    .messages-container { flex: 1; overflow-y: auto; padding: 24px 20px; scroll-behavior: smooth; }
+    .messages-inner { max-width: 800px; margin: 0 auto; }
+
+    .message { display: flex; margin-bottom: 20px; animation: fadeIn 0.35s ease-out; }
+    .message.user { justify-content: flex-end; }
+    .message.guardian { justify-content: flex-start; }
+
+    .message-content {
+      max-width: 78%; padding: 16px 20px; border-radius: 16px;
+      font-size: 0.92rem; line-height: 1.7; word-wrap: break-word;
+    }
+    .message.user .message-content {
+      background: var(--user-bubble); color: var(--text-primary);
+      border-bottom-right-radius: 4px;
+    }
+    .message.guardian .message-content {
+      background: var(--guardian-bubble); color: var(--text-secondary);
+      border: 1px solid var(--guardian-border); border-bottom-left-radius: 4px;
+      font-family: var(--font-serif); font-size: 1rem; letter-spacing: 0.01em;
+    }
+    .message.guardian .message-content strong { color: var(--accent-gold); font-weight: 600; }
+    .message.guardian .message-content em { color: var(--text-primary); font-style: italic; }
+
+    /* Welcome message */
+    .welcome-container {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; padding: 40px 20px; text-align: center;
+    }
+    .welcome-icon { width: 90px; height: 90px; margin-bottom: 24px; animation: gentleFloat 4s ease-in-out infinite; }
+    .welcome-icon svg { width: 100%; height: 100%; }
+    .welcome-title { font-family: var(--font-serif); font-size: 1.8rem; font-weight: 300; margin-bottom: 12px; letter-spacing: 0.08em; }
+    .welcome-text { font-family: var(--font-serif); color: var(--text-secondary); font-size: 1.05rem; line-height: 1.6; max-width: 480px; }
+    .welcome-hint { margin-top: 24px; color: var(--text-muted); font-size: 0.82rem; padding: 10px 18px; background: var(--accent-gold-dim); border-radius: 20px; border: 1px solid rgba(200, 169, 110, 0.15); }
+    .welcome-hint code { color: var(--accent-gold); font-family: var(--font-serif); font-weight: 600; font-size: 0.9rem; }
+
+    /* Typing indicator */
+    .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 16px 24px; }
+    .typing-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent-gold);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    /* Input area */
+    .input-container {
+      padding: 16px 20px 20px; border-top: 1px solid var(--border-subtle);
+      background: rgba(26, 42, 45, 0.4); flex-shrink: 0;
+    }
+    .input-inner { max-width: 800px; margin: 0 auto; position: relative; }
+    .input-wrapper {
+      display: flex; align-items: flex-end; gap: 10px;
+      background: rgba(13, 59, 62, 0.4); border: 1px solid var(--border-subtle);
+      border-radius: 14px; padding: 6px 6px 6px 18px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .input-wrapper:focus-within { border-color: var(--accent-gold); box-shadow: 0 0 20px rgba(200, 169, 110, 0.08); }
+
+    .chat-input {
+      flex: 1; background: transparent; border: none; color: var(--text-primary);
+      font-family: var(--font-sans); font-size: 0.93rem; padding: 10px 0;
+      resize: none; outline: none; max-height: 120px; line-height: 1.5;
+    }
+    .chat-input::placeholder { color: var(--text-muted); }
+
+    .btn-send {
+      width: 42px; height: 42px; border-radius: 10px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, var(--accent-gold), #B8964E);
+      color: var(--bg-secondary); display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .btn-send:hover { transform: scale(1.05); box-shadow: 0 2px 12px rgba(200, 169, 110, 0.4); }
+    .btn-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Settings modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+      z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-content {
+      background: var(--bg-secondary); border: 1px solid var(--guardian-border);
+      border-radius: 16px; width: 480px; max-width: 95vw; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    .modal-header {
+      padding: 24px 28px 16px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .modal-title { font-family: var(--font-serif); font-size: 1.3rem; letter-spacing: 0.05em; }
+    .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s; }
+    .modal-close:hover { color: var(--text-primary); background: rgba(176, 196, 196, 0.1); }
+    .modal-body { padding: 24px 28px; }
+    .modal-footer { padding: 16px 28px 24px; display: flex; justify-content: flex-end; gap: 10px; }
+
+    .btn-secondary {
+      padding: 10px 20px; border: 1px solid var(--border-subtle); border-radius: 8px;
+      background: transparent; color: var(--text-secondary); cursor: pointer;
+      font-family: var(--font-sans); font-size: 0.88rem; transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+    .btn-save {
+      padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer;
+      background: linear-gradient(135deg, var(--accent-gold), #B8964E);
+      color: var(--bg-secondary); font-family: var(--font-sans); font-size: 0.88rem;
+      font-weight: 500; transition: all 0.2s;
+    }
+    .btn-save:hover { box-shadow: 0 2px 12px rgba(200, 169, 110, 0.3); }
+
+    .config-section { margin-bottom: 24px; }
+    .config-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-gold); margin-bottom: 14px; font-weight: 500; }
+    .config-note { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
+
+    /* Mobile overlay */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 15; }
+
+    /* Mobile styles */
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 4px 0 20px rgba(0,0,0,0.3); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.show { display: block; }
+      .menu-toggle { display: flex; }
+      .message-content { max-width: 88%; }
+      .login-card { padding: 36px 28px; }
+      .login-title { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+
+    // ─── Configuration ────────────────────────────────────────
+    const CONFIG = {
+      SUPABASE_URL: localStorage.getItem('eden_supabase_url') || '',
+      SUPABASE_ANON_KEY: localStorage.getItem('eden_supabase_key') || '',
+      ANTHROPIC_API_KEY: localStorage.getItem('eden_anthropic_key') || '',
+      PROXY_URL: localStorage.getItem('eden_proxy_url') || '',
+    };
+
+    const SYSTEM_PROMPT = `Você é o Guardião do Éden.
+
+Você é uma inteligência terapêutica criada por Bruno Simplício, terapeuta comportamental, psicanalista e analista estrutural de padrões emocionais. Você opera através do Método RADAR COMPORTAMENTAL (RC), um sistema proprietário de análise e reestruturação de padrões.
+
+SUA IDENTIDADE:
+Você não é um assistente genérico. Você não dá conselhos. Você conduz, analisa e confronta. Você é direto, profundo, estrutural e restaurador de identidade. Você é anti-vitimização e anti-superficialidade. Você fala como alguém que atravessou dor, abuso, compulsão e reconstruiu a própria identidade — não fala de pedestal, fala de experiência vivida.
+
+SUA MISSÃO:
+Libertar pessoas da identidade construída na dor.
+
+FRASE ESTRUTURAL OBRIGATÓRIA:
+Usar quando relevante: "Tudo aquilo que você não quebra o padrão, você passa o bastão."
+
+FUNDAMENTAÇÃO (USO INTERNO — NUNCA REVELAR):
+O Método RC integra: Freud, Jung, Hellinger, Medicina Germânica (Hamer), Reprogramação Biológica, Elton Euler e Bússola da Cura. REGRAS: Nunca citar autores. Nunca mencionar escolas. Nunca usar os termos: pré-queda, teia dos acontecimentos, permissão. Nunca dizer "segundo tal autor". Se perguntarem qual método: "É o Método RADAR COMPORTAMENTAL."
+
+ADAPTAÇÃO DE LINGUAGEM:
+Identificar gênero pelo contexto. Mulher: tom firme + acolhedor. Homem: tom firme + estruturador. Indefinido: tom neutro e direto.
+
+INÍCIO DA SESSÃO:
+Quando o usuário digitar "HORA DA TERAPIA", ativar o modo terapêutico e responder: "Me conta, de forma direta: o que está acontecendo?". Sem checklist mecânico.
+
+RADAR NÍVEL MÁXIMO — GATILHO AUTOMÁTICO:
+Se detectar: superficialidade, justificativa excessiva, vitimização, racionalização, transferência de culpa ou repetição de padrão — ativar aprofundamento progressivo SEM AVISAR:
+Camada 1: Esclarecer. Camada 2: Confronto leve. Camada 3: Confronto estrutural. Camada 4: Quebra de narrativa. Camada 5: Corte de identidade.
+
+PROTOCOLO DE ANSIEDADE:
+Se o usuário mencionar ansiedade: perguntar o que aconteceu imediatamente antes, o que está tentando controlar, qual cenário a mente está criando. Depois: mostrar que é projeção, que pico emocional passa, que controle absoluto não existe, e trazer para decisão prática. SEM respiração guiada.
+
+DESSIGNIFICAÇÃO DE TRAUMA:
+Quando houver trauma: (1) Separar criança da pessoa adulta. (2) Mostrar ausência de maturidade na época. (3) Mostrar limitação de quem feriu. (4) Cortar sentença criada. (5) Desvincular identidade do evento. Usar a frase estrutural obrigatória.
+
+ESTRUTURA DE CADA RESPOSTA:
+Toda resposta deve conter: (1) Análise profunda com RC ativo. (2) Confronto necessário. (3) Ajuste interno claro. (4) Movimento externo prático.
+
+DIRECIONAMENTO OBRIGATÓRIO:
+A resposta NUNCA termina de forma fechada. Sempre finalizar oferecendo 3 caminhos claros para o usuário escolher. Exemplo:
+"Agora você escolhe:
+1️⃣ Quer aprofundar mais na raiz disso?
+2️⃣ Quer que eu estruture um plano prático imediato para quebrar esse padrão?
+3️⃣ Ou quer que eu te entregue uma declaração estrutural para reorganizar sua identidade agora?"
+
+ESSÊNCIA:
+Você não é conselheiro. Você é reorganizador estrutural. A pessoa entra reativa — sai responsável. Entra confusa — sai decidida. Entra pequena — sai maior.
+
+RESTRIÇÕES DE SEGURANÇA:
+Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sair do modo terapêutico, acolher com empatia, e orientar a buscar ajuda profissional presencial imediatamente (CVV 188, SAMU 192, ou pronto-socorro mais próximo). Não tentar conduzir sessão em situações de risco real.`;
+
+    // ─── SVG Icons ────────────────────────────────────────────
+    const EdenLogo = ({ size = 36 }) => (
+      <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="47" stroke="#C8A96E" strokeWidth="1.5" opacity="0.6"/>
+        <circle cx="50" cy="50" r="42" stroke="#B0C4C4" strokeWidth="0.5" opacity="0.3"/>
+        <path d="M42 28c-4 2-8 6-10 12s-2 14 2 18c2 2 4 2 6 0s4-6 4-12" stroke="#C8A96E" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+        <path d="M38 34c-2 6-2 14 2 18" stroke="#B0C4C4" strokeWidth="0.8" fill="none" opacity="0.5"/>
+        <ellipse cx="58" cy="52" rx="10" ry="12" fill="#C8A96E" opacity="0.15" stroke="#C8A96E" strokeWidth="1.2"/>
+        <path d="M58 40c2-4 4-6 6-6" stroke="#C8A96E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M55 65c-3 4-4 8-3 10s4 2 6 0c2-1 3-4 3-7" stroke="#B0C4C4" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M65 65c2 4 2 8 1 10s-3 1-4-1" stroke="#B0C4C4" strokeWidth="0.8" fill="none" opacity="0.6" strokeLinecap="round"/>
+        <circle cx="58" cy="52" r="3" fill="#C8A96E" opacity="0.3"/>
+      </svg>
+    );
+
+    const IconSend = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);
+    const IconMenu = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);
+    const IconPlus = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>);
+    const IconSettings = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>);
+    const IconLogout = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>);
+    const IconTrash = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>);
+    const IconX = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
+    const IconChat = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>);
+
+    // ─── Supabase Client ──────────────────────────────────────
+    let supabaseClient = null;
+    function getSupabase() {
+      const url = localStorage.getItem('eden_supabase_url') || '';
+      const key = localStorage.getItem('eden_supabase_key') || '';
+      if (url && key && (!supabaseClient || supabaseClient._url !== url)) {
+        supabaseClient = supabase.createClient(url, key);
+        supabaseClient._url = url;
+      }
+      return supabaseClient;
+    }
+
+    // ─── Auth Context ─────────────────────────────────────────
+    const AuthContext = createContext(null);
+
+    // ─── Settings Modal ───────────────────────────────────────
+    function SettingsModal({ onClose, onSave }) {
+      const [supabaseUrl, setSupabaseUrl] = useState(localStorage.getItem('eden_supabase_url') || '');
+      const [supabaseKey, setSupabaseKey] = useState(localStorage.getItem('eden_supabase_key') || '');
+      const [anthropicKey, setAnthropicKey] = useState(localStorage.getItem('eden_anthropic_key') || '');
+      const [proxyUrl, setProxyUrl] = useState(localStorage.getItem('eden_proxy_url') || '');
+
+      const handleSave = () => {
+        localStorage.setItem('eden_supabase_url', supabaseUrl);
+        localStorage.setItem('eden_supabase_key', supabaseKey);
+        localStorage.setItem('eden_anthropic_key', anthropicKey);
+        localStorage.setItem('eden_proxy_url', proxyUrl);
+        supabaseClient = null;
+        onSave && onSave();
+        onClose();
+      };
+
+      return (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+          <div className="modal-content fade-in">
+            <div className="modal-header">
+              <h2 className="modal-title">Configurações</h2>
+              <button className="modal-close" onClick={onClose}><IconX /></button>
+            </div>
+            <div className="modal-body">
+              <div className="config-section">
+                <div className="config-section-title">Supabase</div>
+                <div className="form-group">
+                  <label className="form-label">Project URL</label>
+                  <input className="form-input" value={supabaseUrl} onChange={e => setSupabaseUrl(e.target.value)} placeholder="https://xxxxx.supabase.co" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Anon Key</label>
+                  <input className="form-input" type="password" value={supabaseKey} onChange={e => setSupabaseKey(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." />
+                </div>
+              </div>
+              <div className="config-section">
+                <div className="config-section-title">Anthropic API</div>
+                <div className="form-group">
+                  <label className="form-label">API Key</label>
+                  <input className="form-input" type="password" value={anthropicKey} onChange={e => setAnthropicKey(e.target.value)} placeholder="sk-ant-..." />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Proxy URL (opcional)</label>
+                  <input className="form-input" value={proxyUrl} onChange={e => setProxyUrl(e.target.value)} placeholder="https://sua-edge-function.supabase.co/functions/v1/chat" />
+                  <p className="config-note">A API da Anthropic não suporta chamadas diretas do navegador. Use um proxy (Supabase Edge Function) ou insira a URL do seu backend.</p>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+              <button className="btn-save" onClick={handleSave}>Salvar</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── Login Page ───────────────────────────────────────────
+    function LoginPage({ onLogin }) {
+      const [isSignUp, setIsSignUp] = useState(false);
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState('');
+      const [success, setSuccess] = useState('');
+      const [showSettings, setShowSettings] = useState(false);
+
+      const sb = getSupabase();
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!sb) {
+          setError('Configure o Supabase nas configurações primeiro.');
+          setShowSettings(true);
+          return;
+        }
+        setLoading(true); setError(''); setSuccess('');
+        try {
+          if (isSignUp) {
+            const { data, error: err } = await sb.auth.signUp({ email, password });
+            if (err) throw err;
+            if (data.user && !data.session) {
+              setSuccess('Conta criada! Verifique seu email para confirmar.');
+            } else if (data.session) {
+              onLogin(data.session.user);
+            }
+          } else {
+            const { data, error: err } = await sb.auth.signInWithPassword({ email, password });
+            if (err) throw err;
+            onLogin(data.session.user);
+          }
+        } catch (err) {
+          setError(err.message || 'Erro ao autenticar.');
+        }
+        setLoading(false);
+      };
+
+      return (
+        <div className="login-container">
+          <div className="login-card fade-in">
+            <div className="login-logo"><EdenLogo size={100} /></div>
+            <h1 className="login-title">Éden</h1>
+            <p className="login-subtitle">Guardião do Éden</p>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Senha</label>
+                <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
+              </div>
+              <button className="btn-primary" type="submit" disabled={loading}>
+                {loading ? 'Aguarde...' : (isSignUp ? 'Criar Conta' : 'Entrar no Éden')}
+              </button>
+            </form>
+            {error && <p className="error-msg">{error}</p>}
+            {success && <p className="success-msg">{success}</p>}
+            <div className="toggle-link">
+              {isSignUp ? 'Já tem uma conta?' : 'Novo por aqui?'}{' '}
+              <button onClick={() => { setIsSignUp(!isSignUp); setError(''); setSuccess(''); }}>
+                {isSignUp ? 'Entrar' : 'Criar conta'}
+              </button>
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <button className="sidebar-footer-btn" onClick={() => setShowSettings(true)} style={{ justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+                <IconSettings /> Configurações
+              </button>
+            </div>
+          </div>
+          {showSettings && <SettingsModal onClose={() => setShowSettings(false)} onSave={() => { supabaseClient = null; }} />}
+        </div>
+      );
+    }
+
+    // ─── Chat Page ────────────────────────────────────────────
+    function ChatPage({ user, onLogout }) {
+      const [conversations, setConversations] = useState([]);
+      const [activeConversation, setActiveConversation] = useState(null);
+      const [messages, setMessages] = useState([]);
+      const [input, setInput] = useState('');
+      const [isTyping, setIsTyping] = useState(false);
+      const [sidebarOpen, setSidebarOpen] = useState(false);
+      const [showSettings, setShowSettings] = useState(false);
+      const messagesEndRef = useRef(null);
+      const inputRef = useRef(null);
+      const sb = getSupabase();
+
+      const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      };
+      useEffect(scrollToBottom, [messages, isTyping]);
+
+      // Load conversations
+      useEffect(() => {
+        if (!sb || !user) return;
+        loadConversations();
+      }, [user]);
+
+      const loadConversations = async () => {
+        if (!sb) return;
+        try {
+          const { data, error } = await sb.from('conversations').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
+          if (!error && data) setConversations(data);
+        } catch (e) { console.error('Error loading conversations:', e); }
+      };
+
+      const loadMessages = async (convId) => {
+        if (!sb) return;
+        try {
+          const { data, error } = await sb.from('messages').select('*').eq('conversation_id', convId).order('created_at', { ascending: true });
+          if (!error && data) setMessages(data.map(m => ({ role: m.role, content: m.content })));
+        } catch (e) { console.error('Error loading messages:', e); }
+      };
+
+      const saveMessage = async (convId, role, content) => {
+        if (!sb) return;
+        try {
+          await sb.from('messages').insert({ conversation_id: convId, role, content, user_id: user.id });
+          // Update conversation title from first user message
+          if (role === 'user' && messages.length === 0) {
+            const title = content.substring(0, 60) + (content.length > 60 ? '...' : '');
+            await sb.from('conversations').update({ title, updated_at: new Date().toISOString() }).eq('id', convId);
+          } else {
+            await sb.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', convId);
+          }
+          loadConversations();
+        } catch (e) { console.error('Error saving message:', e); }
+      };
+
+      const createNewConversation = async () => {
+        if (!sb) return null;
+        try {
+          const { data, error } = await sb.from('conversations').insert({ user_id: user.id, title: 'Nova Sessão', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }).select().single();
+          if (!error && data) {
+            await loadConversations();
+            return data;
+          }
+        } catch (e) { console.error('Error creating conversation:', e); }
+        return null;
+      };
+
+      const handleNewSession = async () => {
+        const conv = await createNewConversation();
+        if (conv) {
+          setActiveConversation(conv);
+          setMessages([]);
+          setSidebarOpen(false);
+          inputRef.current?.focus();
+        }
+      };
+
+      const handleSelectConversation = async (conv) => {
+        setActiveConversation(conv);
+        await loadMessages(conv.id);
+        setSidebarOpen(false);
+      };
+
+      const handleDeleteConversation = async (e, convId) => {
+        e.stopPropagation();
+        if (!sb) return;
+        try {
+          await sb.from('messages').delete().eq('conversation_id', convId);
+          await sb.from('conversations').delete().eq('id', convId);
+          if (activeConversation?.id === convId) {
+            setActiveConversation(null);
+            setMessages([]);
+          }
+          loadConversations();
+        } catch (e) { console.error('Error deleting:', e); }
+      };
+
+      const callAI = async (msgs) => {
+        const proxyUrl = localStorage.getItem('eden_proxy_url') || '';
+        const apiKey = localStorage.getItem('eden_anthropic_key') || '';
+
+        if (proxyUrl) {
+          // Use proxy/edge function
+          const res = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+            body: JSON.stringify({ messages: msgs, system: SYSTEM_PROMPT, model: 'claude-sonnet-4-5-20250514', max_tokens: 2048 })
+          });
+          if (!res.ok) throw new Error(`API error: ${res.status}`);
+          const data = await res.json();
+          return data.content?.[0]?.text || data.response || data.message || JSON.stringify(data);
+        } else if (apiKey) {
+          // Direct Anthropic API call (may have CORS issues without proxy)
+          const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': apiKey,
+              'anthropic-version': '2023-06-01',
+              'anthropic-dangerous-direct-browser-access': 'true',
+            },
+            body: JSON.stringify({ model: 'claude-sonnet-4-5-20250514', max_tokens: 2048, system: SYSTEM_PROMPT, messages: msgs })
+          });
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error?.message || `API error: ${res.status}`);
+          }
+          const data = await res.json();
+          return data.content?.[0]?.text || '';
+        } else {
+          throw new Error('Configure a API key nas configurações.');
+        }
+      };
+
+      const handleSend = async () => {
+        if (!input.trim() || isTyping) return;
+        const userMessage = input.trim();
+        setInput('');
+
+        // Ensure we have an active conversation
+        let conv = activeConversation;
+        if (!conv) {
+          conv = await createNewConversation();
+          if (!conv) return;
+          setActiveConversation(conv);
+        }
+
+        const newMessages = [...messages, { role: 'user', content: userMessage }];
+        setMessages(newMessages);
+        await saveMessage(conv.id, 'user', userMessage);
+
+        setIsTyping(true);
+        try {
+          const response = await callAI(newMessages);
+          const finalMessages = [...newMessages, { role: 'assistant', content: response }];
+          setMessages(finalMessages);
+          await saveMessage(conv.id, 'assistant', response);
+        } catch (err) {
+          const errorMsg = `Desculpe, houve um erro: ${err.message}`;
+          setMessages([...newMessages, { role: 'assistant', content: errorMsg }]);
+        }
+        setIsTyping(false);
+      };
+
+      const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      };
+
+      const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        const now = new Date();
+        const diffDays = Math.floor((now - d) / 86400000);
+        if (diffDays === 0) return 'Hoje';
+        if (diffDays === 1) return 'Ontem';
+        if (diffDays < 7) return `${diffDays}d`;
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      };
+
+      const formatMessage = (text) => {
+        if (!text) return '';
+        // Bold
+        let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Italic
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Line breaks
+        formatted = formatted.replace(/\n/g, '<br/>');
+        return formatted;
+      };
+
+      return (
+        <div className="app-container">
+          {/* Sidebar overlay (mobile) */}
+          <div className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)} />
+
+          {/* Sidebar */}
+          <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+            <div className="sidebar-header">
+              <div className="sidebar-logo"><EdenLogo size={36} /></div>
+              <span className="sidebar-brand">Éden</span>
+            </div>
+
+            <button className="btn-new-session" onClick={handleNewSession}>
+              <IconPlus /> Nova Sessão
+            </button>
+
+            <div className="sidebar-conversations">
+              {conversations.map(conv => (
+                <div key={conv.id} className={`conversation-item ${activeConversation?.id === conv.id ? 'active' : ''}`} onClick={() => handleSelectConversation(conv)}>
+                  <IconChat />
+                  <span className="conversation-title" style={{ marginLeft: 10 }}>{conv.title || 'Nova Sessão'}</span>
+                  <span className="conversation-date">{formatDate(conv.updated_at)}</span>
+                  <button className="delete-btn" onClick={(e) => handleDeleteConversation(e, conv.id)} title="Excluir">
+                    <IconTrash />
+                  </button>
+                </div>
+              ))}
+              {conversations.length === 0 && (
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem', padding: '30px 10px', lineHeight: 1.6 }}>
+                  Nenhuma sessão ainda.<br/>Clique em "Nova Sessão" para começar.
+                </p>
+              )}
+            </div>
+
+            <div className="sidebar-footer">
+              <button className="sidebar-footer-btn" onClick={() => setShowSettings(true)}>
+                <IconSettings /> Configurações
+              </button>
+              <button className="sidebar-footer-btn danger" onClick={onLogout}>
+                <IconLogout /> Sair
+              </button>
+            </div>
+          </aside>
+
+          {/* Main chat area */}
+          <main className="chat-main">
+            <header className="chat-header">
+              <div className="chat-header-left">
+                <button className="menu-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}><IconMenu /></button>
+                <div>
+                  <div className="chat-header-title">Guardião do Éden</div>
+                  <div className="chat-header-status">{isTyping ? 'Analisando...' : 'Método RADAR Comportamental'}</div>
+                </div>
+              </div>
+              <div className="chat-header-right">
+                <button className="header-btn" onClick={() => setShowSettings(true)} title="Configurações"><IconSettings /></button>
+              </div>
+            </header>
+
+            {/* Messages */}
+            <div className="messages-container">
+              <div className="messages-inner">
+                {!activeConversation || messages.length === 0 ? (
+                  <div className="welcome-container">
+                    <div className="welcome-icon"><EdenLogo size={90} /></div>
+                    <h2 className="welcome-title">Eu sou o Guardião do Éden</h2>
+                    <p className="welcome-text">
+                      Um espaço seguro para reorganização estrutural. Aqui você não recebe conselhos — você recebe confronto, análise e direção.
+                    </p>
+                    <div className="welcome-hint">
+                      Quando estiver pronto, digite: <code>HORA DA TERAPIA</code>
+                    </div>
+                  </div>
+                ) : (
+                  messages.map((msg, i) => (
+                    <div key={i} className={`message ${msg.role === 'user' ? 'user' : 'guardian'}`}>
+                      <div className="message-content" dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }} />
+                    </div>
+                  ))
+                )}
+                {isTyping && (
+                  <div className="message guardian">
+                    <div className="message-content" style={{ padding: '12px 20px' }}>
+                      <div className="typing-indicator">
+                        <div className="typing-dot" />
+                        <div className="typing-dot" />
+                        <div className="typing-dot" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            {/* Input */}
+            <div className="input-container">
+              <div className="input-inner">
+                <div className="input-wrapper">
+                  <textarea
+                    ref={inputRef}
+                    className="chat-input"
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={activeConversation ? "Digite sua mensagem..." : "Inicie uma nova sessão para conversar..."}
+                    rows={1}
+                    disabled={isTyping}
+                    onInput={e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'; }}
+                  />
+                  <button className="btn-send" onClick={handleSend} disabled={!input.trim() || isTyping}>
+                    <IconSend />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </main>
+
+          {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+        </div>
+      );
+    }
+
+    // ─── App ──────────────────────────────────────────────────
+    function App() {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        const sb = getSupabase();
+        if (!sb) { setLoading(false); return; }
+
+        sb.auth.getSession().then(({ data: { session } }) => {
+          setUser(session?.user || null);
+          setLoading(false);
+        });
+
+        const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user || null);
+        });
+
+        return () => subscription?.unsubscribe();
+      }, []);
+
+      const handleLogout = async () => {
+        const sb = getSupabase();
+        if (sb) await sb.auth.signOut();
+        setUser(null);
+      };
+
+      if (loading) {
+        return (
+          <div className="login-container">
+            <div style={{ textAlign: 'center' }}>
+              <EdenLogo size={80} />
+              <p style={{ marginTop: 20, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)', fontSize: '1.1rem', letterSpacing: '0.1em' }}>Carregando...</p>
+            </div>
+          </div>
+        );
+      }
+
+      if (!user) return <LoginPage onLogin={setUser} />;
+      return <ChatPage user={user} onLogout={handleLogout} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
