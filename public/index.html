@@ -483,7 +483,7 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-5-20250514', max_tokens: 2048, system: SYSTEM_PROMPT, messages: msgs })
+          body: JSON.stringify({ model: 'claude-sonnet-4-5-20250929', max_tokens: 2048, system: SYSTEM_PROMPT, messages: msgs })
         });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
