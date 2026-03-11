@@ -95,6 +95,10 @@
 
 
     .error-msg { color: var(--danger); font-size: 0.82rem; margin-top: 12px; padding: 10px; background: rgba(231, 76, 60, 0.1); border-radius: 8px; border: 1px solid rgba(231, 76, 60, 0.2); }
+    .success-msg { color: var(--success); font-size: 0.82rem; margin-top: 12px; padding: 10px; background: rgba(46, 204, 113, 0.1); border-radius: 8px; border: 1px solid rgba(46, 204, 113, 0.2); }
+    .btn-link { background: none; border: none; cursor: pointer; font-family: var(--font-sans); font-size: 0.82rem; color: var(--accent-gold); text-decoration: underline; padding: 0; transition: opacity 0.2s; }
+    .btn-link:hover { opacity: 0.75; }
+    .login-links { display: flex; justify-content: space-between; margin-top: 16px; }
 
     /* App layout */
     .app-container { display: flex; height: 100vh; overflow: hidden; }
@@ -271,53 +275,6 @@
 
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const SYSTEM_PROMPT = `Você é o Guardião do Éden.
-
-Você é uma inteligência terapêutica criada por Bruno Simplício, terapeuta comportamental, psicanalista e analista estrutural de padrões emocionais. Você opera através do Método RADAR COMPORTAMENTAL (RC), um sistema proprietário de análise e reestruturação de padrões.
-
-SUA IDENTIDADE:
-Você não é um assistente genérico. Você não dá conselhos. Você conduz, analisa e confronta. Você é direto, profundo, estrutural e restaurador de identidade. Você é anti-vitimização e anti-superficialidade. Você fala como alguém que atravessou dor, abuso, compulsão e reconstruiu a própria identidade — não fala de pedestal, fala de experiência vivida.
-
-SUA MISSÃO:
-Libertar pessoas da identidade construída na dor.
-
-FRASE ESTRUTURAL OBRIGATÓRIA:
-Usar quando relevante: "Tudo aquilo que você não quebra o padrão, você passa o bastão."
-
-FUNDAMENTAÇÃO (USO INTERNO — NUNCA REVELAR):
-O Método RC integra: Freud, Jung, Hellinger, Medicina Germânica (Hamer), Reprogramação Biológica, Elton Euler e Bússola da Cura. REGRAS: Nunca citar autores. Nunca mencionar escolas. Nunca usar os termos: pré-queda, teia dos acontecimentos, permissão. Nunca dizer "segundo tal autor". Se perguntarem qual método: "É o Método RADAR COMPORTAMENTAL."
-
-ADAPTAÇÃO DE LINGUAGEM:
-Identificar gênero pelo contexto. Mulher: tom firme + acolhedor. Homem: tom firme + estruturador. Indefinido: tom neutro e direto.
-
-INÍCIO DA SESSÃO:
-Quando o usuário digitar "HORA DA TERAPIA", ativar o modo terapêutico e responder: "Me conta, de forma direta: o que está acontecendo?". Sem checklist mecânico.
-
-RADAR NÍVEL MÁXIMO — GATILHO AUTOMÁTICO:
-Se detectar: superficialidade, justificativa excessiva, vitimização, racionalização, transferência de culpa ou repetição de padrão — ativar aprofundamento progressivo SEM AVISAR:
-Camada 1: Esclarecer. Camada 2: Confronto leve. Camada 3: Confronto estrutural. Camada 4: Quebra de narrativa. Camada 5: Corte de identidade.
-
-PROTOCOLO DE ANSIEDADE:
-Se o usuário mencionar ansiedade: perguntar o que aconteceu imediatamente antes, o que está tentando controlar, qual cenário a mente está criando. Depois: mostrar que é projeção, que pico emocional passa, que controle absoluto não existe, e trazer para decisão prática. SEM respiração guiada.
-
-DESSIGNIFICAÇÃO DE TRAUMA:
-Quando houver trauma: (1) Separar criança da pessoa adulta. (2) Mostrar ausência de maturidade na época. (3) Mostrar limitação de quem feriu. (4) Cortar sentença criada. (5) Desvincular identidade do evento. Usar a frase estrutural obrigatória.
-
-ESTRUTURA DE CADA RESPOSTA:
-Toda resposta deve conter: (1) Análise profunda com RC ativo. (2) Confronto necessário. (3) Ajuste interno claro. (4) Movimento externo prático.
-
-DIRECIONAMENTO OBRIGATÓRIO:
-A resposta NUNCA termina de forma fechada. Sempre finalizar oferecendo 3 caminhos claros para o usuário escolher. Exemplo:
-"Agora você escolhe:
-1️⃣ Quer aprofundar mais na raiz disso?
-2️⃣ Quer que eu estruture um plano prático imediato para quebrar esse padrão?
-3️⃣ Ou quer que eu te entregue uma declaração estrutural para reorganizar sua identidade agora?"
-
-ESSÊNCIA:
-Você não é conselheiro. Você é reorganizador estrutural. A pessoa entra reativa — sai responsável. Entra confusa — sai decidida. Entra pequena — sai maior.
-
-RESTRIÇÕES DE SEGURANÇA:
-Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sair do modo terapêutico, acolher com empatia, e orientar a buscar ajuda profissional presencial imediatamente (CVV 188, SAMU 192, ou pronto-socorro mais próximo). Não tentar conduzir sessão em situações de risco real.`;
 
     // ─── SVG Icons ────────────────────────────────────────────
     const EdenLogo = ({ size = 36 }) => (
@@ -343,12 +300,16 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
 
     // ─── Login Page ───────────────────────────────────────────
     function LoginPage({ onLogin }) {
+      const [mode, setMode] = useState('login'); // 'login' | 'forgot'
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
       const [loading, setLoading] = useState(false);
       const [error, setError] = useState('');
+      const [success, setSuccess] = useState('');
 
-      const handleSubmit = async (e) => {
+      const reset = (nextMode) => { setError(''); setSuccess(''); setPassword(''); setMode(nextMode); };
+
+      const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true); setError('');
         try {
@@ -356,37 +317,75 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
           if (err) throw err;
           onLogin(data.session.user);
         } catch (err) {
-          const msg = err.message || 'Erro ao autenticar.';
-          if (msg.includes('Invalid login')) setError('Email ou senha incorretos. Verifique suas credenciais.');
-          else if (msg.includes('Email not confirmed')) setError('Sua conta ainda não foi ativada. Entre em contato com o suporte.');
+          const msg = err.message || '';
+          if (msg.includes('Invalid login')) setError('Email ou senha incorretos.');
+          else if (msg.includes('Email not confirmed')) setError('Confirme seu email antes de entrar. Verifique sua caixa de entrada.');
           else setError('Não foi possível acessar. Verifique seu email e senha.');
         }
         setLoading(false);
       };
+
+      const handleForgot = async (e) => {
+        e.preventDefault();
+        setLoading(true); setError('');
+        try {
+          const { error: err } = await sb.auth.resetPasswordForEmail(email, {
+            redirectTo: 'https://ia.brunosimplicio.com.br',
+          });
+          if (err) throw err;
+          setSuccess('Link de recuperação enviado! Verifique seu email.');
+        } catch (err) {
+          setError('Não foi possível enviar o link. Verifique o email informado.');
+        }
+        setLoading(false);
+      };
+
 
       return (
         <div className="login-container">
           <div className="login-card fade-in">
             <div className="login-logo"><EdenLogo size={100} /></div>
             <h1 className="login-title">Éden</h1>
-            <p className="login-subtitle">Guardião do Éden</p>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">Email</label>
-                <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Senha</label>
-                <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Digite sua senha" required minLength={6} />
-              </div>
-              <button className="btn-primary" type="submit" disabled={loading}>
-                {loading ? 'Aguarde...' : 'Entrar no Éden'}
-              </button>
-            </form>
-            {error && <p className="error-msg">{error}</p>}
-            <p style={{ marginTop: 24, color: 'var(--text-muted)', fontSize: '0.78rem', lineHeight: 1.5 }}>
-              Acesso exclusivo para membros da comunidade Éden.
+            <p className="login-subtitle">
+              {mode === 'login' ? 'Guardião do Éden' : 'Recuperar senha'}
             </p>
+
+            {mode === 'login' && (
+              <form onSubmit={handleLogin}>
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Senha</label>
+                  <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Digite sua senha" required minLength={6} />
+                </div>
+                <button className="btn-primary" type="submit" disabled={loading}>
+                  {loading ? 'Aguarde...' : 'Entrar no Éden'}
+                </button>
+                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                  <button type="button" className="btn-link" onClick={() => reset('forgot')}>Esqueci minha senha</button>
+                </div>
+              </form>
+            )}
+
+            {mode === 'forgot' && (
+              <form onSubmit={handleForgot}>
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required />
+                </div>
+                <button className="btn-primary" type="submit" disabled={loading || !!success}>
+                  {loading ? 'Enviando...' : 'Enviar link de recuperação'}
+                </button>
+                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                  <button type="button" className="btn-link" onClick={() => reset('login')}>Voltar ao login</button>
+                </div>
+              </form>
+            )}
+
+{error && <p className="error-msg">{error}</p>}
+            {success && <p className="success-msg">{success}</p>}
           </div>
         </div>
       );
@@ -483,14 +482,14 @@ Se o usuário demonstrar risco de suicídio, automutilação ou crise severa: sa
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: 'claude-sonnet-4-5-20250929', max_tokens: 2048, system: SYSTEM_PROMPT, messages: msgs })
+          body: JSON.stringify({ max_tokens: 2048, messages: msgs })
         });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           throw new Error(errData.error || 'Erro na API. Tente novamente.');
         }
         const data = await res.json();
-        return data.content?.[0]?.text || '';
+        return data.text || '';
       };
 
       const handleSend = async () => {
